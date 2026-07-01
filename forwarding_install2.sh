@@ -85,15 +85,15 @@ cat <<EOF > /tmp/ufw_nat_rules
 -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination $ORIGIN_IP
 -A PREROUTING -p udp --dport 53 -j DNAT --to-destination $ORIGIN_IP
 
-# Переадресация диапазона 40000:60000
--A PREROUTING -p tcp --dport 40000:60000 -j DNAT --to-destination $ORIGIN_IP
--A PREROUTING -p udp --dport 40000:60000 -j DNAT --to-destination $ORIGIN_IP
+# Переадресация диапазона 30000:60000
+-A PREROUTING -p tcp --dport 30000:60000 -j DNAT --to-destination $ORIGIN_IP
+-A PREROUTING -p udp --dport 30000:60000 -j DNAT --to-destination $ORIGIN_IP
 
 # Маскировка (SNAT) для обратного трафика
 -A POSTROUTING -p tcp -d $ORIGIN_IP --dport 53 -j SNAT --to-source $LOCAL_IP
 -A POSTROUTING -p udp -d $ORIGIN_IP --dport 53 -j SNAT --to-source $LOCAL_IP
--A POSTROUTING -p tcp -d $ORIGIN_IP --dport 40000:60000 -j SNAT --to-source $LOCAL_IP
--A POSTROUTING -p udp -d $ORIGIN_IP --dport 40000:60000 -j SNAT --to-source $LOCAL_IP
+-A POSTROUTING -p tcp -d $ORIGIN_IP --dport 30000:60000 -j SNAT --to-source $LOCAL_IP
+-A POSTROUTING -p udp -d $ORIGIN_IP --dport 30000:60000 -j SNAT --to-source $LOCAL_IP
 COMMIT
 
 *filter
@@ -104,11 +104,11 @@ COMMIT
 # Разрешаем пересылку для уже установленных соединений
 -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-# Явно разрешаем прохождение трафика ТОЛЬКО для DNS и диапазона 40000:60000
+# Явно разрешаем прохождение трафика ТОЛЬКО для DNS и диапазона 30000:60000
 -A FORWARD -d $ORIGIN_IP -p tcp --dport 53 -j ACCEPT
 -A FORWARD -d $ORIGIN_IP -p udp --dport 53 -j ACCEPT
--A FORWARD -d $ORIGIN_IP -p tcp --dport 40000:60000 -j ACCEPT
--A FORWARD -d $ORIGIN_IP -p udp --dport 40000:60000 -j ACCEPT
+-A FORWARD -d $ORIGIN_IP -p tcp --dport 30000:60000 -j ACCEPT
+-A FORWARD -d $ORIGIN_IP -p udp --dport 30000:60000 -j ACCEPT
 -A FORWARD -s $ORIGIN_IP -j ACCEPT
 
 COMMIT
@@ -128,8 +128,8 @@ mv /etc/ufw/before.rules.new /etc/ufw/before.rules
 log "Открытие портов в фаерволе..."
 ufw allow 53/tcp
 ufw allow 53/udp
-ufw allow 40000:60000/tcp
-ufw allow 40000:60000/udp
+ufw allow 30000:60000/tcp
+ufw allow 30000:60000/udp
 
 sed -i 's/DEFAULT_FORWARD_POLICY="DROP"/DEFAULT_FORWARD_POLICY="ACCEPT"/' /etc/default/ufw
 
@@ -139,5 +139,5 @@ ufw reload
 rm -f /tmp/ufw_nat_rules
 
 log "Готово! Система оптимизирована."
-log "Переадресация: DNS (53) + диапазон 40000:60000 → $ORIGIN_IP"
+log "Переадресация: DNS (53) + диапазон 30000:60000 → $ORIGIN_IP"
 log "Локальные порты вне этого диапазона (например, 60001) НЕ переадресуются."
