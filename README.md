@@ -9,6 +9,11 @@
 sudo ORIGIN_IP="IP_ADDRESS" bash -c "$(curl -sSL https://raw.githubusercontent.com/tihonme/kaska-d/main/forwarding_install.sh)"
 ```
 
+Версия 2 оставляем порты выше 60000 и берем только awg
+```bash
+sudo ORIGIN_IP="IP_ADDRESS" bash -c "$(curl -sSL https://raw.githubusercontent.com/tihonme/kaska-d/main/forwarding_install.sh)"
+```
+
 <sup>Краткое описание: добавляет правила перенаправления.</sup>
 
 ## Удаление перенаправления
